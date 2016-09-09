@@ -1,0 +1,104 @@
+.red {
+	background-color: red;
+}
+
+.blue {
+	background-color: blue;
+}
+
+.green {
+	background-color: green;
+}
+
+.yellow {
+	background-color: yellow;
+}
+
+.brown {
+	background-color: brown;
+}
+
+.tan {
+	background-color: tan;
+}
+
+.white {
+	background-color: white;
+}
+
+.black {
+	background-color: black;
+}
+
+.moveable {
+	position: absolute;
+}
+
+.height-xs {
+	height: 5px;
+}
+
+.height-sm {
+	height: 10px;
+}
+
+.height-md {
+	height: 15px;
+}
+
+.height-lg {
+	height: 20px;
+}
+
+.height-xl {
+	height: 25px;
+}
+
+.my-row {
+	display:table-row;
+}
+
+.my-row div {
+	float: left;
+}
+
+.col-1 {
+	width: 5px;
+}
+
+.col-2 {
+	width: 10px;
+}
+
+.col-3 {
+	width: 15px;
+}
+
+.col-4 {
+	width: 20px;
+}
+
+.col-5 {
+	width: 25px;
+}
+
+.col-6 {
+	width: 30px;
+}
+
+.col-7 {
+	width: 35px;
+}
+
+.col-8 {
+	width: 40px;
+}
+
+.col-9 {
+	width: 45px;
+}
+
+.col-10 {
+	width: 50px;
+}
+
