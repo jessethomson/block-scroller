@@ -1,27 +1,28 @@
 (function() {
+	var gameWidth = $(window).width();
+	var gameHeight = $(window).height();
 	var character = "mario";
 	var player = $("#player");
 	var paused;
 	var game;
-	var gameWidth = $(window).width();
-	var gameHeight = $(window).height();
 
 	var enemies = [];
 
 	function startGame() {
 		
 		stopGame();
-		player.load("./templates/characters/" + character + ".html");
+		loadPlayer(character);
 		paused = false;
 
 		window.setTimeout(function(){
 			game = window.setInterval(function() {
 				if(!paused) {
 					// update
-					shift(player, 5)
+					//shift(player, 5)
 				}
 			}, 30)
-		}, 1000); // one second pause
+			//kill();
+		}, 1000); // one second pause before starting
 	}
 
 	function stopGame() {
@@ -66,22 +67,71 @@
 
 	function jump() {
 		if(!paused) {
+			var jumpHeight = 160;
 			playAudio("jump-sound");
-			player.load("./templates/characters/" + character + "-jumping.html")
-			window.setTimeout(function() {
-				player.load("./templates/characters/" + character + ".html")
-			}, 350);
+			injectCharacter(character + "-jumping");
+			var amount = 10;
+			var start = parseFloat(player.css("top"));
+			var direction = 1;
+			var jumpAction = setInterval(function() {
+				var top = parseFloat(player.css("top"));
+				if(top < (start - jumpHeight) && direction == 1) {
+					direction = -1;
+				}
+				lift(player, amount*direction);
+				if(direction == -1 && top == start) {
+					injectCharacter(character);
+					clearInterval(jumpAction);
+				}
+
+			}, 25);
+
 		}
 	}
 
+	function kill() {
+		//injectCharacter(deadMan)
+		var upDuration = 250;
+		var goUp = window.setInterval(function() {
+			lift(player, -10);
+		}, 30);
+		window.setTimeout(function() {
+			clearInterval(goUp);
+		}, upDuration)
+
+		window.setTimeout(function() {
+			var top = parseFloat(player.css("top"));
+			var goDown = window.setInterval(function() {
+				if(top <= gameHeight) {
+					lift(player, 10);
+				}
+				else {
+					clearInterval(goDown);
+				}
+				top = parseFloat(player.css("top"));
+			}, 30);
+		}, upDuration + 100);
+	}
+
+	function injectCharacter(fileName, callback) {
+		player.load("./templates/characters/" + fileName + ".html", callback)
+	}
+
 	function loadPlayer(character) {
-		player.load("./templates/characters/" + character + ".html");
-		var width = player.children();
-		console.log(width);
+		injectCharacter(character, function() {
+			// inject width and height into parent
+			var data = player.find("#" + character);
+			player.attr("width", data.attr("width"));
+			player.attr("height", data.attr("height"));
+		})
 	}
 
 	function shift(element, amount) {
 		element.css("left", parseFloat(element.css("left")) + amount);
+	}
+
+	function lift(element, amount) {
+		element.css("top", parseFloat(element.css("top")) + -1*amount)
 	}
 
 	startGame();
