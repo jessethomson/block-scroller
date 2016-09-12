@@ -1,39 +1,60 @@
 (function() {
-	var gameWidth = $(window).width();
-	var gameHeight = $(window).height();
-	var gameDiv = $("#game");
-	var characterName = "mario";
-	// var player = $("#player");
-	var jumping = false
-	var dying = false;
-	var paused;
-	var game;
 
+	var gameWidth = window.innerWidth;// || document.documentElement.clientWidth;
+	var gameHeight = window.innerHeight;// || document.documentElement.clientHeight;
+
+	var playerName = "luigi";
+	var jumping, gameOver, game, nextEnemyId;
+	var enemyOptions = ["goomba","ghost","enemy"];
 	var enemies = [];
 
 	function startGame() {
 		
 		stopGame();
-		loadPlayer(characterName);
-		loadEnemy("goomba");
+		playAudio("theme-song");
+
+		$("#floor").css("top", gameHeight/4 * 3);
+		$("#floor").css("height", gameHeight/5);
+		$("#floor").css("width", gameWidth/100 * 99);
+		loadPlayer(playerName);
 		
-		paused = false;
-		dying = false;
+		gameOver = false;
+		nextEnemyId = 0;
+
+		var gameSpeed = 30;
+		var counter = 0;
+		var frequency = 1500;
 
 		window.setTimeout(function(){
 			game = window.setInterval(function() {
-				if(!paused) {
+				if(!gameOver) {
 					// update
 					for(var i=0; i<enemies.length; i++) {
-						shift($("#" + enemies[i]), -8);
-						if(collision(characterName, enemies[i])) {
-							die(characterName);
-							clearInterval(game);
+						var enemyName = enemies[i];
+						shift($("#" + enemyName), -9);
+						var deadMan = collision(playerName, enemyName);
+						if(deadMan) {
+							if(deadMan === playerName) {
+								playerDie(playerName);
+								clearInterval(game);
+							}
+							else {
+								removeEnemy(enemyName);
+								enemyDie(enemyName);
+								break;
+							}
 						}
-						console.log(collision(characterName, enemies[i]));
 					}
+					// generate enemies
+					if(counter > frequency / gameSpeed) {
+						var enemyIndex = Math.floor(Math.random() * enemyOptions.length);
+						loadEnemy(enemyOptions[enemyIndex]);
+						frequency = (Math.floor(Math.random() * 3) + 1) * 1500;
+				        counter = 0;
+				    }
+				    counter++;
 				}
-			}, 30);
+			}, gameSpeed);
 		}, 1000); // one second pause before starting
 	}
 
@@ -66,81 +87,80 @@
 			r1.top > r2.bottom);
 
 		if(result) {
-			console.log("top: " + r2.top);
-			console.log("bottom: " + r2.bottom);
-			console.log("left: " + r2.left);
-			console.log("right: " + r2.right);
+			var topOverlap = r1.bottom - r2.top;
+			var sideOverlap = r1.right - r2.left;
+			if(topOverlap > sideOverlap) {
+				return name1;
+			}
+			else {
+				return name2;
+			}
 		}
-		return result;
+		return null;
 	}
 
-	function changePlayerTemplate(characterName, suffix = "", callback) {
-		$("#" + characterName).load("./templates/characters/" + characterName + suffix + ".html", callback)
+	function changePlayerTemplate(playerName, suffix = "", callback) {
+		$("#" + playerName).load("./templates/players/" + playerName + suffix + ".html", callback)
 	}
 
 	function changeEnemyTemplate(enemyName, suffix = "", callback) {
 		$("#" + enemyName).load("./templates/enemies/" + enemyName + suffix + ".html", callback)
 	}
 
-	function loadPlayer(characterName) {
+	function loadPlayer(playerName) {
 
-		var player = $("<div class='moveable'" + "id=" + characterName + ">").load("./templates/characters/" + characterName + ".html", function() {
-			gameDiv.append(player);
+		var player = $("<div class='moveable'" + "id=" + playerName + ">").load("./templates/players/" + playerName + ".html", function() {
+			$("#game").append(player);
 
-			player.css("left", gameWidth/8);
-			player.css("top", gameHeight/4 * 3);
-
-			var data = player.find("#" + characterName);
+			var data = player.find("#" + playerName);
 			player.attr("width", data.attr("width"));
 			player.attr("height", data.attr("height"));
+
+			player.css("left", gameWidth/8);
+			player.css("top", (gameHeight/4 * 3) - parseInt(player.attr("height")));
 		});
 	}
 
 	function loadEnemy(enemyName) {
 
-		var enemy = $("<div class='moveable'" + "id=" + enemyName + ">").load("./templates/enemies/" + enemyName + ".html", function() {
-			gameDiv.append(enemy);
-			enemies.push(enemyName);
-
-			enemy.css("left", gameWidth - gameWidth/8);
-			enemy.css("top", gameHeight/4 * 3);
+		var enemy = $("<div class='moveable'" + "id=" + enemyName + "-" + nextEnemyId + ">").load("./templates/enemies/" + enemyName + ".html", function() {
+			$("#game").append(enemy);
+			enemies.push(enemyName + "-" + nextEnemyId++);
 
 			var data = enemy.find("#" + enemyName);
 			enemy.attr("width", data.attr("width"));
 			enemy.attr("height", data.attr("height"));
+
+			enemy.css("left", gameWidth/8 * 7);
+			enemy.css("top", (gameHeight/4 * 3) -  parseInt(enemy.attr("height")));
 		});
 	}
 
 	function stopGame() {
+		stopAudio("theme-song");
+		for(var i=0; i<enemies.length; i++) {
+			$("#" + enemies[i]).remove();
+		}
+		enemies = [];
 		clearInterval(game);
 	}
 
 	$(document.body).on('keydown', function(e) {
 		switch (e.which) {
-			case 80: // 'p' pressed
-				paused = true;
-				break;
-			case 81: // 'q' pressed
-				stopGame();
-				break;
-			case 83: // 's' pressed
-				startGame();
-				break;
 			case 37: // 'left arrow' pressed 
-				console.log('left arrow key pressed!');
 				//shift(player, -8);
-				die("mario");
 				break;
 			case 39: // 'right arrow' pressed
-				console.log('right arrow key pressed!');
 				//shift(player, 8);
 				break;
 			case 32: // 'space bar' pressed
-				if(paused) {
-					paused = false;
+				console.log("space bar pressed");
+				if(gameOver) {
+					gameOver = false;
+					startGame();
 				}
 				else if(!jumping) {
-					jump(characterName);
+					jump(playerName);
 				}
 				break;
 			case 38: // 'up arrow' pressed
@@ -154,8 +174,14 @@
 		}
 	});
 
-	function playAudio(className) {
-		document.getElementById(className).play();
+	function playAudio(audioId) {
+		document.getElementById(audioId).play();
+	}
+
+	function stopAudio(audioId) {
+		var sound = document.getElementById(audioId);
+		sound.pause();
+		sound.currentTime = 0;
 	}
 
 	function jump(characterName) {
@@ -164,14 +190,14 @@
 
 		jumping = true;
 		var jumpHeight = 250;
-		var jumpSpeed = 80;
+		var jumpSpeed = 75;
 		playAudio("jump-sound");
 		changePlayerTemplate(characterName, "-jumping");
 		var amount = jumpHeight/10;
 		var start = parseFloat(player.css("top"));
 		var direction = -1;
 		var jumpAction = setInterval(function() {
-			if(dying) {
+			if(gameOver) {
 				clearInterval(jumpAction);
 			}
 			else {
@@ -191,12 +217,24 @@
 		}, jumpSpeed);
 	}
 
-	function die(characterName) {
-		dying = true;
+	function playerDie(playerName) {
+		gameOver = true;
+		stopAudio("theme-song");
 		playAudio("player-death");
+		changePlayerTemplate(playerName.split('-', 1)[0], "-dead");
+		die(playerName);
+	}
+
+	function enemyDie(enemyName) {
+		playAudio("stomp");
+		changeEnemyTemplate(enemyName.split('-', 1)[0], "-dead");
+		die(enemyName);
+	}
+
+	function die(characterName) {
+
 		var player = $("#" + characterName);
 
-		changePlayerTemplate(characterName, "-dead");
 		var upDuration = 250;
 		var goUp = window.setInterval(function() {
 			lift(player, -10);
@@ -221,17 +259,21 @@
 
 	}
 
+	function removeEnemy(enemyName) {
+		var index = enemies.indexOf(enemyName);
+		if(index > -1) {
+			enemies.splice(index, 1);
+		}
+	}
+
 	function shift(element, amount) {
 		var currentLeft = parseFloat(element.css("left"));
 		if(currentLeft + amount + parseFloat(element.attr("width")) >= 0 && currentLeft + amount <= gameWidth) {
 		 	element.css("left", parseFloat(element.css("left")) + amount);
 		}
 		else {
-			var index = enemies.indexOf(element.attr("id"));
-			if(index > -1) {
-				enemies.splice(index, 1);
-				element.remove();
-			}
+			removeEnemy(element.attr("id"));
+			element.remove();
 		}
 	}
 
