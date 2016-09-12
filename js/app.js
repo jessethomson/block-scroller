@@ -4,7 +4,7 @@
 	var gameHeight = window.innerHeight;// || document.documentElement.clientHeight;
 
 	var playerName = "luigi";
-	var jumping, gameOver, game, nextEnemyId;
+	var jumping, dying, game, nextEnemyId, playing;
 	var enemyOptions = ["goomba","ghost","enemy"];
 	var enemies = [];
 
@@ -18,7 +18,7 @@
 		$("#floor").css("width", gameWidth/100 * 99);
 		loadPlayer(playerName);
 		
-		gameOver = false;
+		playing = true;
 		nextEnemyId = 0;
 
 		var gameSpeed = 30;
@@ -27,7 +27,7 @@
 
 		window.setTimeout(function(){
 			game = window.setInterval(function() {
-				if(!gameOver) {
+				if(!dying && playing) {
 					// update
 					for(var i=0; i<enemies.length; i++) {
 						var enemyName = enemies[i];
@@ -154,12 +154,10 @@
 				//shift(player, 8);
 				break;
 			case 32: // 'space bar' pressed
-				console.log("space bar pressed");
-				if(gameOver) {
-					gameOver = false;
+				if(!playing) {
 					startGame();
 				}
-				else if(!jumping) {
+				else if(!jumping && !dying) {
 					jump(playerName);
 				}
 				break;
@@ -197,7 +195,7 @@
 		var start = parseFloat(player.css("top"));
 		var direction = -1;
 		var jumpAction = setInterval(function() {
-			if(gameOver) {
+			if(dying) {
 				clearInterval(jumpAction);
 			}
 			else {
@@ -218,11 +216,14 @@
 	}
 
 	function playerDie(playerName) {
-		gameOver = true;
+		dying = true;
 		stopAudio("theme-song");
 		playAudio("player-death");
 		changePlayerTemplate(playerName.split('-', 1)[0], "-dead");
-		die(playerName);
+		die(playerName, function() {
+			dying = false;
+			playing = false;
+		});
 	}
 
 	function enemyDie(enemyName) {
@@ -231,7 +232,11 @@
 		die(enemyName);
 	}
 
-	function die(characterName) {
+	function die(characterName, callback) {
+
+		if(!callback) {
+			callback = function() {};
+		}
 
 		var player = $("#" + characterName);
 
@@ -252,6 +257,7 @@
 				else {
 					$("#" + characterName).remove();
 					clearInterval(dieScene);
+					callback();
 				}
 				top = parseFloat(player.css("top"));
 			}, 30);
