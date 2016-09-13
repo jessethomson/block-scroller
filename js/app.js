@@ -28,6 +28,8 @@
 		score = 0;
 		positionScore();
 		
+		jumping = false;
+		dying = false;
 		playing = true;
 
 		var gameSpeed = 30;
