@@ -34,6 +34,10 @@
 	position: absolute;
 }
 
+.height-xxs {
+	height: 2px;
+}
+
 .height-xs {
 	height: 5px;
 }

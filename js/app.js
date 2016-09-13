@@ -16,14 +16,16 @@
 		stopGame();
 		playAudio("theme-song");
 
+		nextEnemyId = 0;
+		nextMessageId = 0;
+
 		$("#floor").css("top", gameHeight/4 * 3);
 		$("#floor").css("height", gameHeight/5);
 		$("#floor").css("width", gameWidth/100 * 99);
 		loadPlayer(playerName);
+		loadMessage("gameover");
 		
 		playing = true;
-		nextEnemyId = 0;
-		nextMessageId = 0;
 
 		var gameSpeed = 30;
 		var counter = 0;
@@ -58,8 +60,8 @@
 				    }
 				    counter++;
 				    // generate background objects
-				    if(count > frequency / gameSpeed) {
-				    	
+				    if(counter > frequency / gameSpeed) {
+
 				    }
 				}
 			}, gameSpeed);
@@ -116,7 +118,7 @@
 	}
 
 	function loadMessage(messageName) {
-		var message = $("<div class='moveable'" + "id=" + messageName + "-" + nextMessageId + ">").load("./templates/" + messageName + ".html", function() {
+		var message = $("<div class='moveable'" + "id=" + messageName + "-" + nextMessageId + ">").load("./templates/messages/" + messageName + ".html", function() {
 			$("#game").append(message);
 			messages.push(messageName + "-" + nextMessageId++);
 
