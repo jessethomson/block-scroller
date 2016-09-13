@@ -6,7 +6,7 @@
 	var playerName = "mario";
 	var jumping, dying, game, nextEnemyId, playing;
 	var enemyOptions = ["goomba","ghost","enemy"];
-	var backgroundOptions = ["cactus-large,""cactus-small,""cactus-medium"];
+	var backgroundOptions = ["cactus-small", "cactus-medium", "cactus-large"];
 	var enemies = [];
 	var messages = [];
 	var backgroundObjects = [];
@@ -18,6 +18,7 @@
 		playAudio("theme-song");
 
 		nextEnemyId = 0;
+		nextBackgroundId = 0;
 		nextMessageId = 0;
 
 		$("#floor").css("top", gameHeight/4 * 3);
@@ -25,7 +26,7 @@
 		$("#floor").css("width", gameWidth/100 * 99);
 		loadPlayer(playerName);
 		score = 0;
-		loadScore();
+		positionScore();
 		
 		playing = true;
 
@@ -36,7 +37,7 @@
 		window.setTimeout(function(){
 			game = window.setInterval(function() {
 				if(!dying && playing) {
-					// update
+					// update enemies
 					for(var i=0; i<enemies.length; i++) {
 						var enemyName = enemies[i];
 						shift($("#" + enemyName), -9);
@@ -53,12 +54,19 @@
 							}
 						}
 					}
+					for(var i=0; i<backgroundObjects.length; i++) {
+						console.log("shifting: " + backgroundObjects[i]);
+						shift($("#" + backgroundObjects[i]), -3);
+					}
 					// generate enemies
 					if(counter > frequency / gameSpeed) {
 						var enemyIndex = Math.floor(Math.random() * enemyOptions.length);
 						loadEnemy(enemyOptions[enemyIndex]);
 						frequency = (Math.floor(Math.random() * 3) + 1) * 1500;
 				        counter = 0;
+
+				        var backgroundIndex = Math.floor(Math.random() * backgroundOptions.length);
+				        loadBackgroundObject(backgroundOptions[backgroundIndex]);
 				    }
 				    counter++;
 				    // generate background objects
@@ -135,7 +143,8 @@
 
 	function loadBackgroundObject(backgroundName) {
 
-		var backgroundObject = $("<div class='moveable'" + "id=" + backgroundName + "-" + nextBackgroundId + ">").load("./templates/" + backgroundName + ".html", function() {
+		var backgroundObject = $("<div class='moveable'" + "id=" + backgroundName + "-" + nextBackgroundId + ">").load("./templates/background-objects/" + backgroundName + ".html", function() {
+			console.log("here");
 			$("#game").append(backgroundObject);
 			backgroundObjects.push(backgroundName + "-" + nextBackgroundId++);
 
@@ -145,12 +154,14 @@
 
 			backgroundObject.css("left", gameWidth/8 * 7);
 			backgroundObject.css("top", (gameHeight/4 * 3) - parseInt(backgroundObject.attr("height")));
+			backgroundObject.css("z-index", -1);
 		});
 	}
 
-	function loadScore() {
-		score.css("left," gameWidth/8 * 7);
-		score.css("top," gameHeight/8);
+	function positionScore() {
+		$("#score").css("left", gameWidth/8 * 7);
+		$("#score").css("top", gameHeight/8);
+		$("#score").text(score);
 	}
 	
 	function loadPlayer(playerName) {
@@ -190,10 +201,16 @@
 		}
 		// remove messages
 		for(var i=0; i<messages.length; i++) {
-			console.log(messages[i]);
 			$("#" + messages[i]).remove();
 		}
+		// remove background objects
+		for(var i=0; i<backgroundObjects.length; i++) {
+			$("#" + backgroundObjects[i]).remove();
+		}
 		enemies = [];
+		messages = [];
+		backgroundObjects = [];
+
 		clearInterval(game);
 	}
 
@@ -283,7 +300,8 @@
 		playAudio("stomp");
 		changeEnemyTemplate(enemyName.split('-', 1)[0], "-dead");
 		die(enemyName);
-		scoreUpdate();
+		score+=100;
+		$("#score").text(score);
 	}
 
 	function die(characterName, callback) {
@@ -347,10 +365,6 @@
 			amount = gameHeight - currentTop;
 		}
 		element.css("top", parseFloat(element.css("top")) + amount);
-	}
-	
-	function scoreUpdate() {
-		score+=100;
 	}
 	
 	startGame();

@@ -3,6 +3,14 @@
 	src: url('/Pixeled.tff');
 }
 
+.lightblue {
+	background-color: lightblue;
+}
+
+.lightgreen {
+	background-color: lightgreen
+}
+
 .red {
 	background-color: red;
 }
