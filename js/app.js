@@ -23,7 +23,6 @@
 		$("#floor").css("height", gameHeight/5);
 		$("#floor").css("width", gameWidth/100 * 99);
 		loadPlayer(playerName);
-		loadMessage("gameover");
 		
 		playing = true;
 

@@ -35,7 +35,7 @@
 }
 
 .height-xxs {
-	height: 2px;
+	height: 3px;
 }
 
 .height-xs {
@@ -64,6 +64,70 @@
 
 .my-row div {
 	float: left;
+}
+
+.col-xs-1 {
+	width: 3px;
+}
+
+.col-xs-2 {
+	width: 6px;
+}
+
+.col-xs-3 {
+	width: 9px;
+}
+
+.col-xs-4 {
+	width: 12px;
+}
+
+.col-xs-5 {
+	width: 15px;
+}
+
+.col-xs-6 {
+	width: 18px;
+}
+
+.col-xs-7 {
+	width: 21px;
+}
+
+.col-xs-8 {
+	width: 24px;
+}
+
+.col-xs-9 {
+	width: 27px;
+}
+
+.col-xs-10 {
+	width: 30px;
+}
+
+.col-xs-11 {
+	width: 33px;
+}
+
+.col-xs-12 {
+	width: 36px;
+}
+
+.col-xs-13 {
+	width: 39px;
+}
+
+.col-xs-14 {
+	width: 42px;
+}
+
+.col-xs-15 {
+	width: 45px;
+}
+
+.col-xs-16 {
+	width: 48px;
 }
 
 .col-1 {
