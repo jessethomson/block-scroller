@@ -6,10 +6,11 @@
 	var playerName = "mario";
 	var jumping, dying, game, nextEnemyId, playing;
 	var enemyOptions = ["goomba","ghost","enemy"];
-	var backgroundOptions = [""];
+	var backgroundOptions = ["cactus-large,""cactus-small,""cactus-medium"];
 	var enemies = [];
 	var messages = [];
 	var backgroundObjects = [];
+	var score;
 
 	function startGame() {
 		
@@ -23,6 +24,8 @@
 		$("#floor").css("height", gameHeight/5);
 		$("#floor").css("width", gameWidth/100 * 99);
 		loadPlayer(playerName);
+		score = 0;
+		loadScore();
 		
 		playing = true;
 
@@ -145,6 +148,11 @@
 		});
 	}
 
+	function loadScore() {
+		score.css("left," gameWidth/8 * 7);
+		score.css("top," gameHeight/8);
+	}
+	
 	function loadPlayer(playerName) {
 
 		var player = $("<div class='moveable'" + "id=" + playerName + ">").load("./templates/players/" + playerName + ".html", function() {
@@ -275,6 +283,7 @@
 		playAudio("stomp");
 		changeEnemyTemplate(enemyName.split('-', 1)[0], "-dead");
 		die(enemyName);
+		scoreUpdate();
 	}
 
 	function die(characterName, callback) {
@@ -339,6 +348,10 @@
 		}
 		element.css("top", parseFloat(element.css("top")) + amount);
 	}
-
+	
+	function scoreUpdate() {
+		score+=100;
+	}
+	
 	startGame();
 }());
