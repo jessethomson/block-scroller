@@ -264,6 +264,7 @@
 		var direction = -1;
 		var jumpAction = setInterval(function() {
 			if(dying) {
+				jumping = false;
 				clearInterval(jumpAction);
 			}
 			else {
