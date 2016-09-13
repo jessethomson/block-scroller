@@ -3,10 +3,13 @@
 	var gameWidth = window.innerWidth;// || document.documentElement.clientWidth;
 	var gameHeight = window.innerHeight;// || document.documentElement.clientHeight;
 
-	var playerName = "luigi";
+	var playerName = "mario";
 	var jumping, dying, game, nextEnemyId, playing;
 	var enemyOptions = ["goomba","ghost","enemy"];
+	var backgroundOptions = [""];
 	var enemies = [];
+	var messages = [];
+	var backgroundObjects = [];
 
 	function startGame() {
 		
@@ -20,6 +23,7 @@
 		
 		playing = true;
 		nextEnemyId = 0;
+		nextMessageId = 0;
 
 		var gameSpeed = 30;
 		var counter = 0;
@@ -53,6 +57,10 @@
 				        counter = 0;
 				    }
 				    counter++;
+				    // generate background objects
+				    if(count > frequency / gameSpeed) {
+				    	
+				    }
 				}
 			}, gameSpeed);
 		}, 1000); // one second pause before starting
@@ -107,6 +115,35 @@
 		$("#" + enemyName).load("./templates/enemies/" + enemyName + suffix + ".html", callback)
 	}
 
+	function loadMessage(messageName) {
+		var message = $("<div class='moveable'" + "id=" + messageName + "-" + nextMessageId + ">").load("./templates/" + messageName + ".html", function() {
+			$("#game").append(message);
+			messages.push(messageName + "-" + nextMessageId++);
+
+			var data = message.find("#" + messageName);
+			message.attr("width", data.attr("width"));
+			message.attr("height", data.attr("height"));
+
+			message.css("left", gameWidth/2  - parseInt(message.attr("width"))/2);
+			message.css("top", gameHeight/4 - parseInt(message.attr("height"))/2);
+		});
+	}
+
+	function loadBackgroundObject(backgroundName) {
+
+		var backgroundObject = $("<div class='moveable'" + "id=" + backgroundName + "-" + nextBackgroundId + ">").load("./templates/" + backgroundName + ".html", function() {
+			$("#game").append(backgroundObject);
+			backgroundObjects.push(backgroundName + "-" + nextBackgroundId++);
+
+			var data = backgroundObject.find("#" + backgroundName);
+			backgroundObject.attr("width", data.attr("width"));
+			backgroundObject.attr("height", data.attr("height"));
+
+			backgroundObject.css("left", gameWidth/8 * 7);
+			backgroundObject.css("top", (gameHeight/4 * 3) - parseInt(backgroundObject.attr("height")));
+		});
+	}
+
 	function loadPlayer(playerName) {
 
 		var player = $("<div class='moveable'" + "id=" + playerName + ">").load("./templates/players/" + playerName + ".html", function() {
@@ -138,8 +175,14 @@
 
 	function stopGame() {
 		stopAudio("theme-song");
+		// remove enemies
 		for(var i=0; i<enemies.length; i++) {
 			$("#" + enemies[i]).remove();
+		}
+		// remove messages
+		for(var i=0; i<messages.length; i++) {
+			console.log(messages[i]);
+			$("#" + messages[i]).remove();
 		}
 		enemies = [];
 		clearInterval(game);
@@ -223,6 +266,7 @@
 		die(playerName, function() {
 			dying = false;
 			playing = false;
+			loadMessage("gameover");
 		});
 	}
 
