@@ -55,7 +55,6 @@
 						}
 					}
 					for(var i=0; i<backgroundObjects.length; i++) {
-						console.log("shifting: " + backgroundObjects[i]);
 						shift($("#" + backgroundObjects[i]), -3);
 					}
 					// generate enemies
@@ -144,7 +143,7 @@
 	function loadBackgroundObject(backgroundName) {
 
 		var backgroundObject = $("<div class='moveable'" + "id=" + backgroundName + "-" + nextBackgroundId + ">").load("./templates/background-objects/" + backgroundName + ".html", function() {
-			console.log("here");
+
 			$("#game").append(backgroundObject);
 			backgroundObjects.push(backgroundName + "-" + nextBackgroundId++);
 
@@ -161,7 +160,7 @@
 	function positionScore() {
 		$("#score").css("left", gameWidth/8 * 7);
 		$("#score").css("top", gameHeight/8);
-		$("#score").text(score);
+		$("#score div").text(score);
 	}
 	
 	function loadPlayer(playerName) {
@@ -236,8 +235,6 @@
 			case 40: // 'down arrow' pressed
 				lift(player, 8);
 				break;
-			default: // temporary
-				console.log(e.which);
 		}
 	});
 
@@ -301,7 +298,7 @@
 		changeEnemyTemplate(enemyName.split('-', 1)[0], "-dead");
 		die(enemyName);
 		score+=100;
-		$("#score").text(score);
+		$("#score div").text(score);
 	}
 
 	function die(characterName, callback) {
